@@ -2,6 +2,7 @@ package com.teste.conexaobdexterno;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.view.View;
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
                     StrictMode.setThreadPolicy(policy);
 
                     Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
-                    conexao = DriverManager.getConnection("jdbc:jtds:sqlserver://192.168.0.80;databaseName=TEEM_ANDROID;user=zelda;password=@ITB123456;");
+                    conexao = DriverManager.getConnection("jdbc:jtds:sqlserver://bd_CharityConnect_INF3FM.mssql.somee.com;databaseName=bd_CharityConnect_INF3FM;user=gustavo;password=41943419;");
                 }catch (Exception e) {
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -49,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
             private void inserirUsuario() {
                 try {
-                    PreparedStatement pst = conexaoBD().prepareStatement("insert into USUARIO values (?,?)");
+                    PreparedStatement pst = conexaoBD().prepareStatement("INSERT INTO Contato (motivoContato, dataContato, pergunta, nome, sobrenome, email, telefone) VALUES (?, ?, ?,?,?,?,?)");
+
                     String nome = edtNome.getText().toString().trim();
                     String email = edtEmail.getText().toString().trim();
 
@@ -57,8 +60,25 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "INSIRA UM NOME", Toast.LENGTH_SHORT).show();
                         edtNome.setFocusable(true);
                     }else{
-                      pst.setString(2, email);
+                      pst.setString(4, nome);
                     }
+
+
+                    if(email.isEmpty() || email.equals("")){
+                        Toast.makeText(getApplicationContext(), "INSIRA SEU EMAIL", Toast.LENGTH_SHORT).show();
+                        edtEmail.setFocusable(true);
+                    }else{
+                        pst.setString(6, email);
+                    }
+
+                    pst.setString(1, "teste do motivo");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        pst.setString(2, LocalDate.now().toString());
+                    }
+                    pst.setString(3, "pergunta teste de celula");
+                    pst.setString(5, "sobrenome do celular");
+                    pst.setString(7, "telefone");
+
                     pst.executeUpdate();
                     Toast.makeText(getApplicationContext(),"USUARIO INSERIDO COM SUCESSO", Toast.LENGTH_SHORT).show();
                 }catch (SQLException e) {
